@@ -6,6 +6,7 @@ import proyectoReducer from './proyectoReducer';
 import {FORMULARIO_PROYECTO,
         OBTENER_PROYECTOS,
         AGREGAR_PROYECTO,
+        PROYECTO_ERROR,
         VALIDAR_FORMULARIO,
         PROYECTO_ACTUAL,
         ELIMINAR_PROYECTO} from '../../types';
@@ -15,17 +16,13 @@ import clienteAxios from '../../config/axios';
 
 const ProyectoState = props => {
 
-    const proyectos = [
-        {id:1,nombre:"Tienda virtual"},
-        {id:2,nombre: "Intranet"},
-        {id:3,nombre: "Diseño de Sitio Web"},
-        {id:4,nombre:"MERN"}
-    ]
+
     const initialState = {
         proyectos : [],
         formulario: false,
         errorformulario:false,
-        proyecto:null
+        proyecto:null,
+        mensaje: null
     }
     //Dispatch para ejecutar las acciones
     const[state,dispatch] = useReducer(proyectoReducer,initialState);
@@ -39,11 +36,16 @@ const ProyectoState = props => {
     }
 
     //Obtener los proyectos
-    const obtenerProyectos = () => {
-        dispatch({
-            type: OBTENER_PROYECTOS,
-            payload: proyectos
-        })
+    const obtenerProyectos = async () => {
+        try {
+            const resultado = await clienteAxios.get('/api/proyectos');
+            dispatch({
+                type: OBTENER_PROYECTOS,
+                payload: resultado.data.proyectos
+            })
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     //Agregar nuevo proyecto
@@ -77,11 +79,23 @@ const ProyectoState = props => {
     }
 
     //Elimina un proyecto
-    const eliminarProyecto = proyectoId => {
-        dispatch({
+    const eliminarProyecto = async proyectoId => {
+       try {
+           await clienteAxios.delete(`/api/proyectos/${proyectoId}`);
+           dispatch({
             type: ELIMINAR_PROYECTO,
             payload: proyectoId
         })
+       } catch (error) {
+           const alerta = {
+               msg:'Hubo un error',
+               categoria: 'alerta-error'
+           }
+           dispatch({
+               type:PROYECTO_ERROR,
+               payload: alerta
+           })
+       }
     }
 
     return (
@@ -91,6 +105,7 @@ const ProyectoState = props => {
             formulario: state.formulario,
             errorformulario:state.errorformulario,
             proyecto: state.proyecto,
+            mensaje:state.mensaje,
             mostrarFormulario,
             obtenerProyectos,
             agregarProyecto,
