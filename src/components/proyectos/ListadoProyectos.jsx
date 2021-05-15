@@ -32,7 +32,7 @@ const ListadoProyectos = () => {
     return ( 
         <ul className="listado-proyectos">
 
-            {alerta && (<div className={`alerta${alerta.categoria}`}>{alerta.msg}</div>)}
+            {alerta && (<div className={`alerta ${alerta.categoria}`}>{alerta.msg}</div>)}
 
             <TransitionGroup>
             {proyectos.map(proyecto =>(
